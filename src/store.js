@@ -3,7 +3,8 @@
 
    The board is stored in Postgres (Supabase) and nothing is
    cached locally, so every device reads and writes the same
-   rows. Auth is a passwordless magic link.
+   rows. Auth is email + password (no mail is ever sent, so the
+   built-in SMTP rate limit does not apply).
 
    The public API mirrors the old IndexedDB version, which is
    why board.js / app.js barely had to change:
@@ -14,7 +15,7 @@
 
    Plus the auth / realtime bits used by sync.js:
 
-     signIn(), signOut(), getUser(), onAuthChange(),
+     signInWithPassword(), signOut(), getUser(), onAuthChange(),
      subscribe(), unsubscribe(), isSignedIn()
    ========================================================= */
 (function (global) {
@@ -67,35 +68,13 @@
 
   /* ---- session --------------------------------------------------------- */
 
-  /** Restores the session (and picks up a magic-link hash). */
+  /** Restores the saved session (if any). */
   function start() {
     sb();
-
-    var fromLink = /access_token|refresh_token|error_description/.test(global.location.hash || '');
-
     return sb().auth.getSession().then(function (res) {
       var data = check(res);
       currentSession = data.session || null;
-      if (currentSession || !fromLink) return currentSession;
-
-      // The hash was just consumed — the SDK may emit the session a tick
-      // later. Wait briefly so a magic link does not land on the sign-in
-      // screen. Normal loads skip this entirely.
-      return new Promise(function (resolve) {
-        var done = false;
-        var finish = function (session) {
-          if (done) return;
-          done = true;
-          clearTimeout(timer);
-          try { if (sub && sub.data && sub.data.subscription) sub.data.subscription.unsubscribe(); } catch (e) {}
-          currentSession = session || currentSession;
-          resolve(currentSession);
-        };
-        var timer = setTimeout(function () { finish(null); }, 3000);
-        var sub = sb().auth.onAuthStateChange(function (event, session) {
-          if (session) finish(session);
-        });
-      });
+      return currentSession;
     });
   }
 
@@ -114,18 +93,15 @@
     };
   }
 
-  function redirectUrl() {
-    return global.location.origin + global.location.pathname;
-  }
-
-  function signIn(email) {
+  function signInWithPassword(email, password) {
     return sb().auth
-      .signInWithOtp({
+      .signInWithPassword({
         email: String(email || '').trim(),
-        options: { emailRedirectTo: redirectUrl() }
+        password: String(password || '')
       })
       .then(function (res) {
         if (res.error) throw res.error;
+        currentSession = res.data.session || currentSession;
         return true;
       });
   }
@@ -353,7 +329,7 @@
 
     // auth
     start: start,
-    signIn: signIn,
+    signInWithPassword: signInWithPassword,
     signOut: signOut,
     getUser: getUser,
     onAuthChange: onAuthChange,

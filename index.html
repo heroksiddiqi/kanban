@@ -37,25 +37,23 @@
 
     <div id="auth-form-wrap">
       <h1>Sign in</h1>
-      <p class="auth-sub">Enter your email and we'll send you a one-time sign-in link.</p>
+      <p class="auth-sub">Enter the email and password for this board.</p>
 
       <form id="auth-form" novalidate>
         <label class="field">
           <span>Email</span>
-          <input id="auth-email" type="email" autocomplete="email" inputmode="email"
-                 placeholder="you@example.com" required>
+          <input id="auth-email" type="email" autocomplete="username" inputmode="email"
+                 autocapitalize="off" spellcheck="false" placeholder="you@example.com" required>
         </label>
-        <button id="auth-submit" class="btn btn-primary auth-submit" type="submit">Send magic link</button>
+        <label class="field">
+          <span>Password</span>
+          <input id="auth-password" type="password" autocomplete="current-password"
+                 placeholder="Your password" required>
+        </label>
+        <button id="auth-submit" class="btn btn-primary auth-submit" type="submit">Sign in</button>
       </form>
 
       <p id="auth-error" class="auth-error" role="alert" hidden></p>
-    </div>
-
-    <div id="auth-sent" class="auth-sent" hidden>
-      <h1>Check your inbox</h1>
-      <p>We sent a sign-in link to <strong id="auth-sent-email"></strong>.
-         Open it on this device to finish signing in.</p>
-      <button id="auth-again" class="btn" type="button">Use a different email</button>
     </div>
 
     <p class="auth-note">Your board lives in Supabase and syncs to every device you sign in on.</p>

@@ -19,12 +19,9 @@
   var authScreen = document.getElementById('auth-screen');
   var authForm = document.getElementById('auth-form');
   var authEmail = document.getElementById('auth-email');
+  var authPassword = document.getElementById('auth-password');
   var authSubmit = document.getElementById('auth-submit');
   var authError = document.getElementById('auth-error');
-  var authFormWrap = document.getElementById('auth-form-wrap');
-  var authSent = document.getElementById('auth-sent');
-  var authSentEmail = document.getElementById('auth-sent-email');
-  var authAgain = document.getElementById('auth-again');
 
   var cardDialog = document.getElementById('card-dialog');
   var cardForm = document.getElementById('card-form');
@@ -629,36 +626,46 @@
       });
   }
 
+  function passwordError(err) {
+    var message = err && err.message ? String(err.message) : '';
+    if (/invalid login credentials/i.test(message)) return 'Wrong email or password.';
+    if (/email not confirmed/i.test(message)) return 'This account is not confirmed yet. Confirm it in Supabase.';
+    if (/failed to fetch|network/i.test(message)) return 'Can’t reach Supabase. Check your connection and try again.';
+    return message || 'Could not sign in. Try again.';
+  }
+
   authForm.addEventListener('submit', function (e) {
     e.preventDefault();
 
     var email = (authEmail.value || '').trim();
+    var password = authPassword.value || '';
+
     if (!email || email.indexOf('@') === -1) {
       showAuthError('Enter a valid email address.');
+      return;
+    }
+    if (!password) {
+      showAuthError('Enter your password.');
       return;
     }
 
     authError.hidden = true;
     authSubmit.disabled = true;
-    authSubmit.textContent = 'Sending…';
+    authSubmit.textContent = 'Signing in…';
 
-    global.KBStore.signIn(email).then(function () {
-      authSentEmail.textContent = email;
-      authFormWrap.hidden = true;
-      authSent.hidden = false;
-    }).catch(function (err) {
-      showAuthError(err && err.message ? err.message : 'Could not send the link. Try again.');
-    }).then(function () {
-      authSubmit.disabled = false;
-      authSubmit.textContent = 'Send magic link';
-    });
-  });
-
-  authAgain.addEventListener('click', function () {
-    authSent.hidden = true;
-    authFormWrap.hidden = false;
-    authEmail.focus();
-    authEmail.select();
+    global.KBStore.signInWithPassword(email, password)
+      .then(function () {
+        startBoard();
+      })
+      .catch(function (err) {
+        showAuthError(passwordError(err));
+        authPassword.value = '';
+        authPassword.focus();
+      })
+      .then(function () {
+        authSubmit.disabled = false;
+        authSubmit.textContent = 'Sign in';
+      });
   });
 
   /* ---- boot ------------------------------------------------------------ */

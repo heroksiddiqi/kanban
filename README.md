@@ -1,8 +1,9 @@
+<<<<<<< HEAD
 # Herok Kanban
 
 A tiny Kanban board that syncs across devices. One HTML page, plain JavaScript, no build step,
 no server of your own. The board lives in **Supabase** (Postgres + Realtime) and you sign in with
-a **magic link** — no password to remember.
+an **email and password**. No mail is ever sent, so the built-in email rate limit never applies.
 
 ---
 
@@ -37,7 +38,7 @@ a **magic link** — no password to remember.
 
 | Piece | Role |
 | ----- | ---- |
-| Supabase Auth | magic-link sign-in; the session is kept in this browser's `localStorage` |
+| Supabase Auth | email + password sign-in; the session is kept in this browser's `localStorage` |
 | `public.boards` | one row per user (the app is a single-board kanban) |
 | `public.columns` | columns, soft-deleted with a `deleted` flag |
 | `public.cards` | cards, also soft-deleted |
@@ -70,19 +71,18 @@ Nothing is cached in the browser, so every device reads the same rows. The publi
    };
    ```
 
-4. In **Authentication → URL Configuration** set:
-   - **Site URL**: `https://your-deployed-url/` (or `http://localhost:8080` while testing)
-   - **Redirect URLs**: add every origin you will open the board from, e.g.
-     `http://localhost:8080/**` and `https://<you>.github.io/kanban/**`
+4. Create your account once: **Authentication → Users → Add user → Create new user**, type your
+   email and a password, and tick **Auto Confirm User**. (The app has no sign-up screen, so this is
+   the only way in — which is exactly what you want on a public URL.)
 
-   Without this, magic links redirect to `http://localhost:3000` and sign-in silently fails.
+5. Optional, recommended: **Authentication → Sign In / Providers → Email** and turn off
+   **Allow new users to sign up**, so nobody else can create accounts in your project.
 
-5. Optional but recommended before real use: **Authentication → Emails / SMTP**. Supabase's built-in
-   mailer is rate-limited (a couple of messages per hour) and meant for testing only. With your own
-   SMTP provider, sign-in links arrive reliably.
+   No SMTP configuration is needed. Sign-in never sends mail, so the built-in sender and its
+   2-emails-per-hour limit are irrelevant.
 
-6. Sign in with your own email. The first sign-in creates your board and seeds three starter
-   columns (To Do / Doing / Done).
+6. Sign in with that email and password. The first sign-in creates your board and seeds three
+   starter columns (To Do / Doing / Done).
 
 ---
 
@@ -121,8 +121,9 @@ add more users, and each user gets their own private board.
 
 3. Wait a minute. The board appears at `https://<your-username>.github.io/kanban/`.
 
-4. Add that URL (with `/**`) to Supabase **Authentication → URL Configuration → Redirect URLs**,
-   then update **Site URL** to the live address.
+Nothing else to configure in Supabase — password sign-in does not use redirect URLs. (You can still
+set **Authentication → URL Configuration → Site URL** to the live address if you like; it is only
+used by email links, which this app does not send.)
 
 All paths are relative, so it works from a subfolder without any configuration.
 
@@ -132,7 +133,6 @@ All paths are relative, so it works from a subfolder without any configuration.
 2. On [vercel.com](https://vercel.com) → **Add New → Project** → import that repository.
 3. Framework preset: **Other**. Build command: *(empty)*. Output directory: `.` (leave as is).
 4. **Deploy**. Every push to `main` redeploys automatically.
-5. Add the Vercel URL to the Supabase redirect URLs.
 
 ---
 
@@ -178,4 +178,9 @@ supabase/schema.sql   tables, RLS, ensure_board(), realtime — run once
   be saved. Export a JSON backup if you need a snapshot.
 - No undo (delete asks for confirmation instead).
 - Drag & drop needs a modern browser (`pointer` events); iOS Safari 13+ / Chrome / Edge / Firefox.
-- Magic links are single-use and expire; request a new one from the sign-in screen if needed.
+- No self-service password reset in the UI: if you forget it, reset it from
+  **Supabase → Authentication → Users → ⋯ → Reset password** (or update the user from the dashboard).
+=======
+# kanban
+Personal Project Tracking
+>>>>>>> cd9dd288373c82551b4f86f8a0de393e9f0ea682

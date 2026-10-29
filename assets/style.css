@@ -891,11 +891,9 @@ body.signed-out .fab { display: none !important; }
 .auth-brand span { color: var(--text); }
 
 .auth-card h1 { font-size: clamp(22px, 5vw, 28px); letter-spacing: -.02em; }
-.auth-sub,
-.auth-sent p { color: var(--muted); font-size: var(--fs-notes); }
+.auth-sub { color: var(--muted); font-size: var(--fs-notes); }
 
-#auth-form-wrap,
-#auth-sent { display: flex; flex-direction: column; gap: 12px; }
+#auth-form-wrap { display: flex; flex-direction: column; gap: 12px; }
 
 #auth-form { display: flex; flex-direction: column; gap: 14px; }
 .auth-submit { width: 100%; min-height: 46px; }
@@ -909,8 +907,6 @@ body.signed-out .fab { display: none !important; }
   font-size: var(--fs-xs);
   font-weight: 600;
 }
-
-.auth-sent .btn { align-self: flex-start; }
 
 .auth-note {
   border-top: 1px solid var(--border);
